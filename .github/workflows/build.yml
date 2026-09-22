@@ -30,10 +30,28 @@ jobs:
 
       - name: Build APK
         working-directory: buildsrc
-        run: gradle assembleDebug --no-daemon --stacktrace
+        shell: bash
+        run: |
+          set +e
+          gradle assembleDebug --no-daemon --stacktrace --info > build.log 2>&1
+          status=$?
+          echo "===== BUILD ERROR LOG ====="
+          tail -n 250 build.log
+          echo "===== END BUILD ERROR LOG ====="
+          exit $status
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
+          name: TS3MobileRSMTA-v0.1-debug
+          path: buildsrc/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: buildsrc/build.log        with:
           name: TS3MobileRSMTA-v0.1-debug
           path: buildsrc/app/build/outputs/apk/debug/app-debug.apk
