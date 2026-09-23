@@ -11,6 +11,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Show files
+        run: |
+          echo "Files in repository:"
+          ls -la
+          echo "ZIP files:"
+          find . -maxdepth 2 -type f -name "*.zip" -print
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -21,7 +28,11 @@ jobs:
         run: |
           rm -rf buildsrc
           mkdir buildsrc
-          unzip -q TS3MobileRSMTA_v0_3.zip -d buildsrc
+          ZIP_FILE=$(find . -maxdepth 2 -type f -name "*.zip" | head -n 1)
+          echo "Using ZIP: $ZIP_FILE"
+          unzip -q "$ZIP_FILE" -d buildsrc
+          echo "Extracted files:"
+          find buildsrc -maxdepth 3 -type f | head -100
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -30,10 +41,14 @@ jobs:
 
       - name: Build APK
         working-directory: buildsrc
-        run: gradle assembleDebug --no-daemon
+        run: |
+          echo "Starting Gradle build..."
+          gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
+          name: TS3MobileRSMTA-debug
+          path: buildsrc/app/build/outputs/apk/debug/app-debug.apk        with:
           name: TS3MobileRSMTA-v0.1-debug
           path: buildsrc/app/build/outputs/apk/debug/app-debug.apk
