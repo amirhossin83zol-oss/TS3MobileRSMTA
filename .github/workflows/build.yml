@@ -21,7 +21,7 @@ jobs:
         run: |
           rm -rf buildsrc
           mkdir buildsrc
-          unzip -q TS3MobileRSMTA_clean_v1.zip -d buildsrc
+          unzip -q TS3MobileRSMTA_clean_v1-2.zip -d buildsrc
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
