@@ -14,12 +14,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show repository files
+      - name: Show files
         run: |
-          echo "Repository files:"
-          ls -la
-          echo "Workflow files:"
-          find .github -type f -maxdepth 3 -print
           echo "ZIP files:"
           find . -type f -name "*.zip" -print
 
@@ -27,7 +23,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
       - name: Extract project
         run: |
@@ -35,6 +31,22 @@ jobs:
           mkdir buildsrc
           ZIP_FILE=$(find . -type f -name "*.zip" | head -n 1)
           echo "Using ZIP: $ZIP_FILE"
+          unzip -q "$ZIP_FILE" -d buildsrc
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+
+      - name: Build APK
+        working-directory: buildsrc
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TS3MobileRSMTA-debug
+          path: buildsrc/app/build/outputs/apk/debug/app-debug.apk          echo "Using ZIP: $ZIP_FILE"
           unzip -q "$ZIP_FILE" -d buildsrc
 
       - name: Setup Gradle
