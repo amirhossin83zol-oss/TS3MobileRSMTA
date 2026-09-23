@@ -18,23 +18,20 @@ jobs:
         with:
           gradle-version: '8.13'
 
-      - run: |
+      - name: Extract ZIP
+        run: |
           mkdir buildsrc
           unzip -q "$(find . -name '*.zip' | head -1)" -d buildsrc
 
-      - run: gradle assembleDebug --no-daemon --stacktrace
-        working-directory: buildsrc
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: TS3MobileRSMTA-debug
-          path: buildsrc/app/build/outputs/apk/debug/app-debug.apk          name: TS3MobileRSMTA-debug
-          path: buildsrc/app/build/outputs/apk/debug/app-debug.apk        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.13"
-
       - name: Build APK
         working-directory: buildsrc
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TS3MobileRSMTA-debug
+          path: buildsrc/app/build/outputs/apk/debug/app-debug.apk        working-directory: buildsrc
         run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
